@@ -46,6 +46,10 @@ class AnnualReturn(Analyzer):
 
       - Returns a dictionary of annual returns (key: year)
     '''
+    params = (
+        ('replay', False),
+        ('compression', 1),
+    )
 
     def stop(self):
         # Must have stats.broker
@@ -60,8 +64,11 @@ class AnnualReturn(Analyzer):
 
         for i in range(len(self.data) - 1, -1, -1):
             dt = self.data.datetime.date(-i)
-            value_cur = self.strategy.stats.broker.value[-i]
-
+            if self.p.replay:
+                  value_cur = self.strategy.stats.value[-i * self.p.compression]
+            else:
+                  value_cur = self.strategy.stats.value[-i]
+              
             if dt.year > cur_year:
                 if cur_year >= 0:
                     annualret = (value_end / value_start) - 1.0
